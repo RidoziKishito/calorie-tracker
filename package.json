@@ -56,10 +56,8 @@
             "vite": "6.3.5"
       },
       "scripts": {
-            "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
-            "dev": "vite",
+            "frontend": "vite",
             "build": "vite build",
-            "start:backend": "cd backend && ../.venv/Scripts/python main.py",
-            "start:frontend": "vite"
+            "dev": "concurrently \"cd backend && ../.venv/Scripts/python main.py\" \"vite\" --names \"backend,frontend\" --prefix-colors \"blue,green\""
       }
 }
