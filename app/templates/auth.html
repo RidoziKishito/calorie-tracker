@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% set hide_nav = True %}
+
+{% block title %}Đăng nhập - VietFood AI{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
+
+    <div class="glass-card p-4 w-100" style="max-width: 400px;">
+        <div class="text-center mb-4">
+            <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                style="width: 60px; height: 60px;">
+                <i class="fa-solid fa-leaf text-white fs-2"></i>
+            </div>
+            <h2 class="fw-bold text-primary-custom">VietFood AI</h2>
+            <p class="text-muted">Theo dõi dinh dưỡng thông minh</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/account/login" method="POST">
+            <div class="mb-3">
+                <label class="form-label text-muted small">Email</label>
+                <input type="email" name="email" class="form-control rounded-pill p-3 border-0 bg-white"
+                    placeholder="name@example.com" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label text-muted small">Mật khẩu</label>
+                <input type="password" name="password" class="form-control rounded-pill p-3 border-0 bg-white"
+                    placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100 rounded-pill p-3 fw-bold shadow-sm"
+                style="background-color: var(--primary-color); border: none;">
+                Đăng nhập
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="#" class="text-decoration-none text-muted small d-block mb-2">Quên mật khẩu?</a>
+            <a href="/account/register" class="text-decoration-none text-muted small">Chưa có tài khoản? <span
+                    class="text-primary-custom fw-bold">Đăng ký</span></a>
+        </div>
+
+        <div class="text-center mt-3">
+            <div class="position-relative my-3">
+                <hr class="my-3">
+                <span
+                    class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">hoặc</span>
+            </div>
+            <button id="googleLoginBtn"
+                class="btn btn-outline-dark w-100 rounded-pill p-2 d-flex align-items-center justify-content-center gap-2">
+                <i class="fab fa-google"></i>Đăng nhập với Google
+            </button>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <p class="text-muted small" style="opacity: 0.7;">Powered by Transfer Learning Tech</p>
+    </div>
+</div>
+
+
+<script>
+    // Supabase should be loaded from base.html
+    let supabaseAuth = null;
+    let isAuthConfiguring = false;
+
+    async function initAuthSupabase() {
+        if (isAuthConfiguring) return;
+        isAuthConfiguring = true;
+
+        try {
+            console.log('Fetching Supabase config for Login...');
+            const res = await fetch('/api/supabase/config');
+            if (!res.ok) throw new Error('Failed to fetch config');
+
+            const config = await res.json();
+
+            if (!window.supabase) {
+                throw new Error('Supabase SDK library not loaded');
+            }
+
+            supabaseAuth = window.supabase.createClient(config.url, config.key);
+            console.log('Supabase initialized for Login');
+        } catch (err) {
+            console.error('Login Init Error:', err);
+            // Don't alert here to avoid annoyance on load, but log it.
+        } finally {
+            isAuthConfiguring = false;
+        }
+    }
+
+    // Init on load
+    initAuthSupabase();
+
+    const loginBtn = document.getElementById('googleLoginBtn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', async (e) => {
+            e.preventDefault(); // Just in case
+            console.log('Login button clicked');
+
+            if (!supabaseAuth) {
+                if (!window.supabase) {
+                    alert('Lỗi: Thư viện Supabase chưa tải xong. Vui lòng tải lại trang.');
+                    return;
+                }
+                // Try initializing again if missing
+                await initAuthSupabase();
+                if (!supabaseAuth) {
+                    alert('Không thể kết nối đến dịch vụ xác thực. Vui lòng kiểm tra kết nối mạng.');
+                    return;
+                }
+            }
+
+            try {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang chuyển hướng...';
+
+                const { data, error } = await supabaseAuth.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/account/oauth/callback'
+                    }
+                });
+
+                if (error) throw error;
+
+            } catch (err) {
+                console.error('Login Error:', err);
+                alert('Đăng nhập thất bại: ' + err.message);
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fab fa-google"></i>Đăng nhập với Google';
+            }
+        });
+    } else {
+        console.error('Login button not found in DOM');
+    }
+</script>
+{% endblock %}

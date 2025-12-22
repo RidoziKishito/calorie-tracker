@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% set hide_nav = True %} {% block title %}Đăng ký - VietFood AI{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
+
+    <div class="glass-card p-4 w-100 animate__animated animate__fadeIn" style="max-width: 400px;">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-primary-custom">Tạo tài khoản</h3>
+            <div class="step-indicator mt-3">
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/account/register" method="POST">
+            <div class="mb-3">
+                <label class="form-label text-muted small">Họ và tên</label>
+                <input type="text" name="full_name" class="form-control rounded-pill p-3 border-0 bg-white"
+                    placeholder="Nguyễn Văn A" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted small">Email</label>
+                <input type="email" name="email" class="form-control rounded-pill p-3 border-0 bg-white"
+                    placeholder="name@example.com" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-muted small">Mật khẩu</label>
+                <input type="password" name="password" class="form-control rounded-pill p-3 border-0 bg-white"
+                    placeholder="••••••••" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-muted small">Xác nhận mật khẩu</label>
+                <input type="password" name="confirm_password" class="form-control rounded-pill p-3 border-0 bg-white"
+                    placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 rounded-pill p-3 fw-bold shadow-sm"
+                style="background-color: var(--primary-color); border: none;">
+                Tiếp tục <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <div class="position-relative my-3">
+                <hr class="my-3">
+                <span
+                    class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">hoặc</span>
+            </div>
+            <button id="googleSignupBtn"
+                class="btn btn-outline-dark w-100 rounded-pill p-2 d-flex align-items-center justify-content-center gap-2">
+                <i class="fab fa-google"></i>Đăng ký với Google
+            </button>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/account/login" class="text-decoration-none text-muted small">Đã có tài khoản? <span
+                    class="text-primary-custom fw-bold">Đăng nhập</span></a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Supabase library already loaded in base.html
+    let supabaseClient = null;
+    let isInitializing = false;
+
+    async function initSupabase() {
+        if (isInitializing) return;
+        isInitializing = true;
+
+        try {
+            const res = await fetch('/api/supabase/config');
+            if (!res.ok) throw new Error('Failed to fetch config');
+
+            const config = await res.json();
+
+            if (!config.url || !config.key) {
+                throw new Error('Missing Supabase credentials');
+            }
+
+            supabaseClient = window.supabase.createClient(config.url, config.key);
+            console.log('Supabase initialized successfully');
+        } catch (err) {
+            console.error('Failed to init Supabase:', err);
+            alert('Lỗi khởi tạo: ' + err.message);
+        } finally {
+            isInitializing = false;
+        }
+    }
+
+    initSupabase();
+
+    document.getElementById('googleSignupBtn').addEventListener('click', async () => {
+        console.log('Button clicked, supabaseClient:', supabaseClient);
+
+        if (!supabaseClient) {
+            alert('Supabase chưa được khởi tạo. Vui lòng thử lại.');
+            await initSupabase();
+            return;
+        }
+
+        try {
+            console.log('Calling signInWithOAuth...');
+            const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + '/account/oauth/callback'
+                }
+            });
+
+            console.log('OAuth response:', { data, error });
+
+            if (error) throw error;
+        } catch (err) {
+            console.error('OAuth error:', err);
+            alert('Đăng ký thất bại: ' + err.message);
+        }
+    });
+</script>
+{% endblock %}

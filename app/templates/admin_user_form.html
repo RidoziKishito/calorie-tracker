@@ -1,0 +1,52 @@
+{% extends "admin_base.html" %}
+{% block title %}Chỉnh sửa User{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Chỉnh sửa người dùng</h4>
+    <a href="/admin/users" class="btn btn-light rounded-circle shadow-sm"><i class="fa-solid fa-xmark"></i></a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-xl p-4">
+    <form action="/admin/users/update" method="POST">
+        <input type="hidden" name="id" value="{{ target_user.id }}">
+
+        <div class="mb-3">
+            <label class="form-label">Họ tên</label>
+            <input type="text" class="form-control" name="full_name" value="{{ target_user.full_name or '' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" value="{{ target_user.email }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Vai trò</label>
+            <select class="form-select" name="role">
+                <option value="user" {% if target_user.role.value=='user' %}selected{% endif %}>User</option>
+                <option value="admin" {% if target_user.role.value=='admin' %}selected{% endif %}>Admin</option>
+                <option value="moderator" {% if target_user.role.value=='moderator' %}selected{% endif %}>Moderator
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 rounded-pill mt-3">Lưu thay đổi</button>
+    </form>
+
+    <hr class="my-4">
+
+    <h6 class="fw-bold text-danger">Đặt lại mật khẩu</h6>
+    <form action="/admin/users/reset-password" method="POST"
+        onsubmit="return confirm('Bạn có chắc muốn đặt lại mật khẩu cho user này?');">
+        <input type="hidden" name="id" value="{{ target_user.id }}">
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu mới</label>
+            <input type="password" class="form-control" name="new_password" required minlength="6"
+                placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)">
+        </div>
+        <button type="submit" class="btn btn-outline-danger w-100 rounded-pill">
+            <i class="fa-solid fa-key me-2"></i>Đặt lại mật khẩu
+        </button>
+    </form>
+</div>
+{% endblock %}

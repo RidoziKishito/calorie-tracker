@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Món ăn{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="glass-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">Lịch sử cân nặng</h6>
+        <span class="badge bg-success bg-opacity-10 text-success">Biểu đồ</span>
+    </div>
+    <canvas id="weightChart" style="max-height: 250px;"></canvas>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        const weightChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ dates | tojson }},
+        datasets: [{
+            label: 'Cân nặng (kg)',
+            data: {{ weights | tojson }},
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#10B981',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#065F46'
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                grid: {
+                    display: true,
+                    borderDash: [2, 4]
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+        });
+    });
+</script>
+
+<h5 class="fw-bold mb-4">Món yêu thích của bạn</h5>
+<div class="row g-3 mb-4">
+    {% for food in personal_foods %}
+    <div class="col-6 col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-xl p-3 text-center h-100 position-relative">
+            <a href="/home/meals/personal/edit/{{ food.id }}" class="position-absolute top-0 end-0 m-2 text-muted p-1">
+                <i class="fa-solid fa-pen-to-square"></i>
+            </a>
+            <form action="/home/meals/personal/delete/{{ food.id }}" method="POST"
+                class="position-absolute top-0 start-0 m-2"
+                onsubmit="return confirm('Bạn có chắc chắn muốn xóa món này?');">
+                <button type="submit" class="btn btn-link text-danger p-1 border-0">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </form>
+
+            {% set icon_map = {
+            'tô': 'fa-bowl-food',
+            'chén': 'fa-bowl-rice',
+            'dĩa': 'fa-plate-wheat',
+            'miếng': 'fa-cookie-bite',
+            'ly': 'fa-mug-hot',
+            'portion': 'fa-utensils'
+            } %}
+
+            <div class="mb-2">
+                <i class="fa-solid {{ icon_map.get(food.unit, 'fa-star') }} fs-1 text-warning"></i>
+            </div>
+            <h6 class="fw-bold mb-1">{{ food.name }}</h6>
+            <small class="text-muted">{{ food.calories }} kcal</small>
+        </div>
+    </div>
+    {% endfor %}
+    {% if not personal_foods %}
+    <div class="col-12">
+        <p class="text-muted text-center py-4">Chưa có món yêu thích. Hãy thêm từ nhật ký hoặc tạo mới!</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="text-center">
+    <a href="/home/meals/create" class="btn btn-primary rounded-pill px-4 py-3 text-decoration-none shadow-sm">
+        <i class="fa-solid fa-plus me-2"></i>Tạo bữa ăn riêng
+    </a>
+</div>
+{% endblock %}

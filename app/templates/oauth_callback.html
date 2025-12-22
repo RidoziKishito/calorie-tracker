@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% set hide_nav = True %}
+
+{% block title %}Xác thực - VietFood AI{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column align-items-center justify-content-center min-vh-100 pb-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <h4 class="text-muted fw-bold">Đang xác thực...</h4>
+    <p class="text-secondary small">Vui lòng đợi trong giây lát</p>
+</div>
+
+<script>
+    async function handleCallback() {
+        try {
+            // Check for errors in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error')) {
+                throw new Error(urlParams.get('error_description') || 'Lỗi xác thực Google');
+            }
+
+            // Fetch config
+            const res = await fetch('/api/supabase/config');
+            if (!res.ok) throw new Error('Không thể tải cấu hình hệ thống');
+            const config = await res.json();
+
+            // Init Supabase
+            const supabase = window.supabase.createClient(config.url, config.key);
+
+            // Get session
+            // Try getSession first (handles hash fragment automatically)
+            const { data, error } = await supabase.auth.getSession();
+
+            if (error) throw error;
+
+            if (!data.session) {
+                // If getSession fails to find session immediately from hash, wait a sec and retry
+                await new Promise(r => setTimeout(r, 500));
+                const retry = await supabase.auth.getSession();
+                if (!retry.data.session) {
+                    throw new Error('Không tìm thấy phiên đăng nhập. Vui lòng thử lại.');
+                }
+                data.session = retry.data.session;
+            }
+
+            // Sync with backend
+            const syncRes = await fetch('/account/oauth/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    access_token: data.session.access_token,
+                    user: data.session.user
+                })
+            });
+
+            const syncData = await syncRes.json();
+            console.log('Sync Data:', syncData); // Debug log
+
+            if (syncData.error) {
+                throw new Error(syncData.error);
+            }
+
+            // Set cookies
+            document.cookie = `session_token=user-is-logged-in; path=/`;
+            document.cookie = `user_id=${syncData.user_id}; path=/`;
+
+            if (syncData.needs_onboarding) {
+                document.cookie = `registration_email=${data.session.user.email}; path=/`;
+            }
+
+            // Redirect
+            window.location.href = syncData.redirect_url;
+
+        } catch (err) {
+            console.error('OAuth Error:', err);
+            alert('❌ Đăng nhập thất bại: ' + err.message);
+            window.location.href = '/account/login';
+        }
+    }
+
+    // Run when page loads
+    document.addEventListener('DOMContentLoaded', handleCallback);
+</script>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ sơ{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4 mt-2">
+    <div class="position-relative d-inline-block">
+        {% if user.avatar_url %}
+        <img src="{{ user.avatar_url }}" class="rounded-circle shadow-sm border border-4 border-white" width="100"
+            height="100" style="object-fit: cover;" alt="Avatar" id="avatarImg">
+        {% else %}
+        <img src="https://ui-avatars.com/api/?name={{ user.full_name }}&background=10B981&color=fff&size=128"
+            class="rounded-circle shadow-sm border border-4 border-white" width="100" height="100"
+            style="object-fit: cover;" alt="Avatar" id="avatarImg">
+        {% endif %}
+
+        <form id="avatarForm" action="/home/profile/upload_avatar" method="POST" enctype="multipart/form-data"
+            class="d-none">
+            <input type="file" name="file" id="realAvatarInput" accept="image/*"
+                onchange="document.getElementById('avatarForm').submit()">
+        </form>
+
+        <button class="btn btn-sm btn-dark rounded-circle position-absolute bottom-0 end-0 shadow-sm d-none"
+            id="changeAvatarBtn" onclick="document.getElementById('realAvatarInput').click()"><i
+                class="fa-solid fa-camera"></i></button>
+    </div>
+    <h4 class="fw-bold mt-3" id="userName">{{ user.full_name }}</h4>
+    <p class="text-muted small">Thành viên từ {{ user.created_at.strftime('%Y') }}</p>
+    <button class="btn btn-primary btn-sm" id="editBtn">Chỉnh sửa</button>
+</div>
+
+<!-- Charts Section -->
+<div class="glass-card p-4 mb-4 rounded-4">
+    <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-line me-2 text-primary-custom"></i>Thống kê trung bình 7 ngày
+    </h6>
+    <div class="row g-4">
+        <!-- Calories -->
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-bold text-muted">Calo</span>
+                <span class="fw-bold text-dark">{{ avg_macros['calories']|round }} kcal</span>
+            </div>
+            <div class="progress rounded-pill" style="height: 12px;">
+                <div class="progress-bar rounded-pill" role="progressbar"
+                    style="width: {{ [avg_macros['calories']/20, 100]|min }}%; background: linear-gradient(90deg, #10B981 0%, #059669 100%);"
+                    aria-valuenow="{{ avg_macros['calories']|round }}" aria-valuemin="0" aria-valuemax="2000"></div>
+            </div>
+        </div>
+
+        <!-- Protein -->
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-bold text-muted">Protein</span>
+                <span class="fw-bold text-dark">{{ avg_macros['protein']|round }}g</span>
+            </div>
+            <div class="progress rounded-pill" style="height: 12px;">
+                <div class="progress-bar rounded-pill" role="progressbar"
+                    style="width: {{ [avg_macros['protein'], 100]|min }}%; background: linear-gradient(90deg, #3B82F6 0%, #2563EB 100%);"
+                    aria-valuenow="{{ avg_macros['protein']|round }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+
+        <!-- Carbs -->
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-bold text-muted">Carbs</span>
+                <span class="fw-bold text-dark">{{ avg_macros['carbs']|round }}g</span>
+            </div>
+            <div class="progress rounded-pill" style="height: 12px;">
+                <div class="progress-bar rounded-pill" role="progressbar"
+                    style="width: {{ [avg_macros['carbs'], 100]|min }}%; background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%);"
+                    aria-valuenow="{{ avg_macros['carbs']|round }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+
+        <!-- Fat -->
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-bold text-muted">Fat</span>
+                <span class="fw-bold text-dark">{{ avg_macros['fat']|round }}g</span>
+            </div>
+            <div class="progress rounded-pill" style="height: 12px;">
+                <div class="progress-bar rounded-pill" role="progressbar"
+                    style="width: {{ [avg_macros['fat'], 100]|min }}%; background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%);"
+                    aria-valuenow="{{ avg_macros['fat']|round }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Personal Info Edit -->
+<div class="glass-card p-4 mb-4 d-none" id="editForm">
+    <h6 class="fw-bold mb-3"><i class="fa-solid fa-user me-2 text-primary-custom"></i>Thông tin cá nhân</h6>
+
+    {% if profile_success %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>{{ profile_success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <form action="/home/profile/update" method="POST" id="updateProfileForm">
+        <div class="mb-3">
+            <label class="form-label">Họ và tên</label>
+            <input type="text" class="form-control" name="full_name" id="fullNameInput" value="{{ user.full_name }}"
+                required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="emailInput" value="{{ user.email }}" disabled>
+            <small class="text-muted">Email không thể thay đổi</small>
+        </div>
+        <!-- Avatar update is handled separately via the camera icon -->
+        <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+        <button type="button" class="btn btn-secondary ms-2" id="cancelEditBtn">Hủy</button>
+    </form>
+
+    <hr class="my-4">
+
+    <!-- Change Password Section -->
+    <h6 class="fw-bold mb-3"><i class="fa-solid fa-lock me-2 text-primary-custom"></i>Đổi mật khẩu</h6>
+
+    {% if password_error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>{{ password_error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    {% if password_success %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>{{ password_success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <form action="/home/profile/change_password" method="POST">
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu cũ</label>
+            <input type="password" class="form-control" name="old_password" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu mới</label>
+            <input type="password" class="form-control" name="new_password" required minlength="6">
+            <small class="text-muted">Tối thiểu 6 ký tự</small>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Xác nhận mật khẩu mới</label>
+            <input type="password" class="form-control" name="confirm_password" required minlength="6">
+        </div>
+        <button type="submit" class="btn btn-warning">Đổi mật khẩu</button>
+    </form>
+</div>
+
+
+<!-- Body Metrics (readonly until edit) -->
+<div class="glass-card p-4 mb-4">
+    <h6 class="fw-bold mb-3"><i class="fa-solid fa-sliders me-2 text-primary-custom"></i>Chỉ số cơ thể</h6>
+    <div class="row g-3">
+        <div class="col-6">
+            <label class="form-label small text-muted">Cân nặng (kg)</label>
+            <input type="number" class="form-control bg-white border-0 shadow-sm" id="weightInput"
+                value="{{ user.health_status.weight_kg if user.health_status else '' }}" readonly>
+        </div>
+        <div class="col-6">
+            <label class="form-label small text-muted">Chiều cao (cm)</label>
+            <input type="number" class="form-control bg-white border-0 shadow-sm" id="heightInput"
+                value="{{ user.health_status.height_cm if user.health_status else '' }}" readonly>
+        </div>
+        <div class="col-12">
+            <label class="form-label small text-muted">Mục tiêu (kcal/ngày)</label>
+            <input type="range" class="form-range" min="1500" max="3000" id="caloriesRange" disabled>
+            <div class="d-flex justify-content-between small fw-bold text-primary-custom">
+                <span>1500</span>
+                <span>2000</span>
+                <span>3000</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card p-4 mb-4 border-start border-4 border-warning">
+    <div class="d-flex justify-content-between mb-3">
+        <h6 class="fw-bold"><i class="fa-solid fa-microchip me-2 text-warning"></i>About AI Model</h6>
+        <span class="badge bg-warning text-dark">Beta v1.0</span>
+    </div>
+
+    <ul class="list-unstyled small mb-0 d-flex flex-column gap-2">
+        <li class="d-flex justify-content-between">
+            <span class="text-muted">Architecture:</span>
+            <span class="fw-bold">EfficientNet-B0</span>
+        </li>
+        <li class="d-flex justify-content-between">
+            <span class="text-muted">Technique:</span>
+            <span class="fw-bold">Transfer Learning</span>
+        </li>
+        <li class="d-flex justify-content-between">
+            <span class="text-muted">Dataset:</span>
+            <span class="fw-bold">100 VN Foods</span>
+        </li>
+        <li class="d-flex justify-content-between">
+            <span class="text-muted">Optimization:</span>
+            <span class="fw-bold">SMOTE + Focal Loss</span>
+        </li>
+    </ul>
+</div>
+
+{% if user.role.value == 'admin' %}
+<div class="glass-card p-4 mb-4">
+    <h6 class="fw-bold mb-3"><i class="fa-solid fa-shield-halved me-2 text-dark"></i>Quản trị hệ thống</h6>
+    <a href="/admin" class="btn btn-dark w-100 rounded-pill py-3">Vào trang Admin</a>
+</div>
+{% endif %}
+
+<form action="/account/logout" method="POST">
+    <button type="submit" class="btn btn-outline-danger w-100 rounded-pill py-3">Đăng xuất</button>
+</form>
+
+<script>
+    // Auto-show edit form if password message exists
+    {% if password_error or password_success %}
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('editForm').classList.remove('d-none');
+        document.getElementById('editBtn').classList.add('d-none');
+    });
+    {% endif %}
+
+    document.getElementById('editBtn').addEventListener('click', function () {
+        document.getElementById('editForm').classList.remove('d-none');
+        document.getElementById('editBtn').classList.add('d-none');
+        document.getElementById('changeAvatarBtn').classList.remove('d-none');
+        // Enable inputs
+        document.getElementById('weightInput').removeAttribute('readonly');
+        document.getElementById('heightInput').removeAttribute('readonly');
+        document.getElementById('caloriesRange').removeAttribute('disabled');
+    });
+
+    document.getElementById('cancelEditBtn').addEventListener('click', function () {
+        document.getElementById('editForm').classList.add('d-none');
+        document.getElementById('editBtn').classList.remove('d-none');
+        document.getElementById('changeAvatarBtn').classList.add('d-none');
+        // Disable inputs
+        document.getElementById('weightInput').setAttribute('readonly', true);
+        document.getElementById('heightInput').setAttribute('readonly', true);
+        document.getElementById('caloriesRange').setAttribute('disabled', true);
+    });
+
+    // Simple progress circle animation
+    document.querySelectorAll('.progress-circle').forEach(circle => {
+        const value = parseInt(circle.dataset.value);
+        const max = 100; // Assume max 100 for demo
+        const percentage = Math.min(value / max * 100, 100);
+        circle.style.background = `conic-gradient(var(--primary-color) ${percentage}%, #e5e7eb ${percentage}%)`;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Nhật ký ăn uống{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 px-2">
+    <a href="/home/diary?date={{ prev_date.strftime('%Y-%m-%d') }}"
+        class="btn btn-sm btn-light rounded-circle shadow-sm"><i class="fa-solid fa-chevron-left"></i></a>
+    <div class="text-center">
+        <h6 class="mb-0 fw-bold">{{ selected_date.strftime('%d Thg %m, %Y') }}</h6>
+        <button class="btn btn-sm btn-link p-0 text-muted" data-bs-toggle="modal" data-bs-target="#calendarModal">Chọn
+            ngày</button>
+    </div>
+    <a href="/home/diary?date={{ next_date.strftime('%Y-%m-%d') }}"
+        class="btn btn-sm btn-light rounded-circle shadow-sm"><i class="fa-solid fa-chevron-right"></i></a>
+</div>
+
+<div class="d-flex flex-column gap-4 mb-5">
+
+    {% for meal_type, logs in meals.items() %}
+    <div>
+        <h6 class="text-muted text-uppercase small fw-bold mb-3 ps-2 border-start border-4 
+            {% if meal_type == 'Breakfast' %}border-success
+            {% elif meal_type == 'Lunch' %}border-warning
+            {% elif meal_type == 'Dinner' %}border-primary
+            {% else %}border-secondary{% endif %}">
+            {% if meal_type == 'Breakfast' %}Bữa sáng
+            {% elif meal_type == 'Lunch' %}Bữa trưa
+            {% elif meal_type == 'Dinner' %}Bữa tối
+            {% else %}Ăn nhẹ{% endif %}
+        </h6>
+        {% if logs %}
+        {% for log in logs %}
+        <a href="/home/meals/detail?id={{ log.id }}"
+            class="bg-white rounded-xl shadow-sm p-3 mb-2 d-block text-decoration-none">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+                        style="width: 40px; height: 40px; overflow: hidden;">
+                        {% if log.image_url %}
+                        <img src="{{ log.image_url }}" class="w-100 h-100" style="object-fit: cover;"
+                            alt="{{ log.final_food_name }}">
+                        {% else %}
+                        {% set icon_map = {
+                        'tô': 'fa-bowl-food',
+                        'chén': 'fa-bowl-rice',
+                        'dĩa': 'fa-plate-wheat',
+                        'miếng': 'fa-cookie-bite',
+                        'ly': 'fa-mug-hot',
+                        'portion': 'fa-utensils'
+                        } %}
+                        {% set unit = 'portion' %}
+                        {% if log.personal_food %}
+                        {% set unit = log.personal_food.unit %}
+                        {% endif %}
+
+                        <i class="fa-solid {{ icon_map.get(unit, 'fa-utensils') }} text-secondary"></i>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <h6 class="fw-bold mb-0 text-dark">{{ log.final_food_name }}</h6>
+                        <small class="text-muted">{{ log.eaten_at.strftime('%H:%M') }}</small>
+                    </div>
+                </div>
+                <span class="fw-bold text-primary-custom">{{ log.calories }} kcal</span>
+            </div>
+        </a>
+        {% endfor %}
+        {% else %}
+        <div class="border border-dashed border-secondary rounded-xl p-4 text-center text-muted opacity-50">
+            <i class="fa-solid fa-plus mb-2"></i>
+            <p class="mb-0 small">Chưa có dữ liệu</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal for calendar -->
+<div class="modal fade" id="calendarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chọn ngày</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="date" class="form-control" id="datePicker" value="{{ selected_date.strftime('%Y-%m-%d') }}"
+                    onchange="selectDate()">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating total button -->
+<div class="position-fixed bottom-0 end-0 p-3">
+    <button class="btn btn-primary rounded-pill shadow-lg" data-bs-toggle="modal" data-bs-target="#totalModal">
+        <i class="fa-solid fa-chart-pie me-2"></i>Tổng: {{ total_calories }} kcal
+    </button>
+</div>
+
+<!-- Modal for total -->
+<div class="modal fade" id="totalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tổng calo hôm nay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tổng calo: {{ total_calories }} kcal</p>
+                <!-- Add more details if needed -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="fixed-bottom mb-nav p-3" style="bottom: 70px; z-index: 900;">
+    <div class="glass-card p-3 d-flex justify-content-between align-items-center shadow-lg bg-dark text-white"
+        style="background: rgba(31, 41, 55, 0.95);">
+        <div>
+            <small class="d-block opacity-75">Tổng cộng hôm nay</small>
+            <span class="fw-bold fs-5">{{ total_calories }} / {{ user.health_status.tdee|default(2000)|round|int }}
+                kcal</span>
+        </div>
+        <div class="bg-white text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold"
+            style="width: 40px; height: 40px; font-size: 0.75rem;">
+            {{ (total_calories / user.health_status.tdee|default(2000) * 100)|round }}%
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectDate() {
+        const date = document.getElementById('datePicker').value;
+        window.location.href = `/home/diary?date=${date}`;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% set hide_nav = True %} {% block title %}Quét món ăn{% endblock %}
+
+{% block content %}
+<div class="position-fixed top-0 start-0 w-100 h-100 bg-dark d-flex flex-column">
+    
+    <div class="d-flex justify-content-between align-items-center p-3 text-white z-3">
+        <a href="/dashboard" class="text-white"><i class="fa-solid fa-xmark fs-3"></i></a>
+        <span class="fw-bold">Quét món ăn</span>
+        <i class="fa-solid fa-bolt fs-4"></i>
+    </div>
+
+    <div class="flex-grow-1 position-relative d-flex align-items-center justify-content-center bg-black">
+        <img src="https://via.placeholder.com/400x600/000000/FFFFFF?text=Camera+Feed" class="position-absolute w-100 h-100 object-fit-cover opacity-50">
+        
+        <div class="scan-box" style="width: 80%; height: 50%; border: 2px solid rgba(255,255,255,0.8); border-radius: 20px; position: relative; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);">
+            <div class="scan-line"></div>
+        </div>
+        
+        <p class="position-absolute bottom-0 mb-5 text-white text-center w-100 small">Giữ chắc camera để AI nhận diện</p>
+    </div>
+
+    <div class="bg-dark p-4 d-flex justify-content-around align-items-center pb-5">
+        <div class="text-white opacity-50"><i class="fa-regular fa-image fs-3"></i></div>
+        
+        <a href="/result" class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px; border: 4px solid rgba(255,255,255,0.3);">
+            <div class="bg-white rounded-circle" style="width: 55px; height: 55px; border: 2px solid #000;"></div>
+        </a>
+
+        <div class="text-white opacity-50"><i class="fa-solid fa-rotate fs-3"></i></div>
+    </div>
+</div>
+{% endblock %}

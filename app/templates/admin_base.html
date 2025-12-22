@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block bottom_nav %}
+<nav class="bottom-nav">
+    <a href="/admin"
+        class="nav-item {% if request.url.path == '/admin' or request.url.path == '/admin/' %}active{% endif %}">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Overview</span>
+    </a>
+    <a href="/admin/users" class="nav-item {% if '/users' in request.url.path %}active{% endif %}">
+        <i class="fa-solid fa-users"></i>
+        <span>Users</span>
+    </a>
+    <a href="/admin/foods" class="nav-item {% if '/foods' in request.url.path %}active{% endif %}">
+        <i class="fa-solid fa-burger"></i>
+        <span>Foods</span>
+    </a>
+    <a href="/home/dashboard" class="nav-item">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Exit</span>
+    </a>
+</nav>
+{% endblock %}

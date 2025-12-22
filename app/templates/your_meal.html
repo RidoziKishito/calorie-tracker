@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+
+{% block title %}Your Meal{% endblock %}
+
+{% block content %}
+<div class="w-100 rounded-xxl overflow-hidden shadow-sm mb-4 position-relative" style="height: 300px;">
+    {% if image_data %}
+    <img src="data:image/jpeg;base64,{{ image_data }}" class="w-100 h-100 object-fit-cover" alt="Uploaded Food">
+    {% else %}
+    <div class="w-100 h-100 bg-light d-flex align-items-center justify-content-center">
+        <i class="fa-solid fa-camera fa-3x text-muted"></i>
+    </div>
+    {% endif %}
+
+    {% if confidence > 0 %}
+    <div class="position-absolute top-0 end-0 m-3">
+        <span
+            class="badge {% if confidence >= 70 %}bg-success{% elif confidence >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} shadow-sm p-2 rounded-pill">
+            <i class="fa-solid fa-wand-magic-sparkles me-1"></i> {{ confidence }}% Confidence
+        </span>
+    </div>
+    {% endif %}
+</div>
+
+{% if food %}
+<!-- Food found in database - show full nutrition info -->
+<div class="glass-card p-4 animate__animated animate__slideInUp">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div class="flex-grow-1">
+            <h2 class="fw-bold mb-1 text-primary-custom" id="foodName">{{ food.name }}</h2>
+            <p class="text-muted small" id="foodUnit">1 {{ food.unit }}</p>
+            <button class="btn btn-sm btn-outline-primary rounded-pill mt-1" onclick="openFoodSearch()">
+                <i class="fa-solid fa-pen me-1"></i>Thay đổi món ăn
+            </button>
+        </div>
+        <div class="text-end">
+            <h3 class="fw-bold mb-0" id="displayCalories">{{ food.calories }}</h3>
+            <small class="text-muted">kcal</small>
+        </div>
+    </div>
+
+    <hr class="opacity-25 my-3">
+
+    <div class="row text-center mb-4 g-2">
+        <div class="col-4">
+            <div class="bg-white p-2 rounded-xl shadow-sm border border-light">
+                <small class="d-block text-muted text-uppercase" style="font-size: 0.65rem;">Carbs</small>
+                <span class="fw-bold text-dark" id="displayCarbs">{{ food.carbs|round(1) }}</span>g
+                <div class="progress mt-1" style="height: 4px;">
+                    <div class="progress-bar bg-warning" style="width: {{ [food.carbs / 1.5, 100]|min }}%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="bg-white p-2 rounded-xl shadow-sm border border-light">
+                <small class="d-block text-muted text-uppercase" style="font-size: 0.65rem;">Protein</small>
+                <span class="fw-bold text-dark" id="displayProtein">{{ food.protein|round(1) }}</span>g
+                <div class="progress mt-1" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: {{ [food.protein / 0.5, 100]|min }}%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="bg-white p-2 rounded-xl shadow-sm border border-light">
+                <small class="d-block text-muted text-uppercase" style="font-size: 0.65rem;">Fat</small>
+                <span class="fw-bold text-dark" id="displayFat">{{ food.fat|round(1) }}</span>g
+                <div class="progress mt-1" style="height: 4px;">
+                    <div class="progress-bar bg-danger" style="width: {{ [food.fat / 0.7, 100]|min }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label small text-muted fw-bold">Khẩu phần</label>
+        <select class="form-select form-select-sm rounded-pill bg-white border-0 shadow-sm" id="portionSelect">
+            <option value="0.5">Nhỏ (50%)</option>
+            <option value="1" selected>Trung bình (100%)</option>
+            <option value="1.5">Lớn (150%)</option>
+            <option value="2">Rất lớn (200%)</option>
+        </select>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label small text-muted fw-bold">Bữa ăn</label>
+        <select class="form-select form-select-sm rounded-pill bg-white border-0 shadow-sm" id="mealTypeSelect">
+            <option value="Breakfast">Bữa sáng</option>
+            <option value="Lunch">Bữa trưa</option>
+            <option value="Dinner">Bữa tối</option>
+            <option value="Snack" selected>Ăn vặt</option>
+        </select>
+    </div>
+
+    <div class="d-grid gap-2">
+        <form action="/home/diary/add" method="POST" id="addToDiaryForm">
+            <input type="hidden" name="food_id" value="{{ food.id }}">
+            <input type="hidden" name="food_name" value="{{ food.name }}">
+            <input type="hidden" name="calories" value="{{ food.calories }}" id="baseCalories">
+            <input type="hidden" name="carbs" value="{{ food.carbs }}" id="baseCarbs">
+            <input type="hidden" name="protein" value="{{ food.protein }}" id="baseProtein">
+            <input type="hidden" name="fat" value="{{ food.fat }}" id="baseFat">
+            <input type="hidden" name="image_url" value="{{ image_url }}">
+            <input type="hidden" name="meal_type" value="Snack" id="mealTypeInput">
+            <input type="hidden" name="portion" value="1.0" id="portionInput">
+            <button type="submit" class="btn btn-success rounded-pill py-3 fw-bold shadow-sm w-100"
+                style="background-color: var(--primary-color); border: none;">
+                <i class="fa-solid fa-plus me-2"></i>Thêm vào Nhật ký
+            </button>
+        </form>
+        <a href="/home/dashboard" class="btn btn-light rounded-pill py-3 text-muted">Quét lại</a>
+        <a href="/home/manual_input" class="btn btn-link text-decoration-none text-muted small mt-1 text-center">
+            Không đúng? Nhập thủ công
+        </a>
+    </div>
+</div>
+
+<!-- Food Search Modal -->
+<div class="modal fade" id="foodSearchModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Tìm món ăn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    onclick="if(modal) modal.hide()"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control form-control-lg rounded-pill border-0 bg-light mb-3"
+                    id="foodSearchInput" placeholder="Tìm kiếm món ăn..." autocomplete="off">
+                <div id="searchResults" class="list-group" style="max-height: 300px; overflow-y: auto;">
+                    <div class="text-center text-muted py-3">
+                        <i class="fa-solid fa-magnifying-glass fa-2x mb-2"></i>
+                        <p class="small">Nhập tên món ăn để tìm kiếm</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let portionSelect, mealTypeSelect, portionInput, mealTypeInput;
+    let baseCalories, baseCarbs, baseProtein, baseFat;
+    let modal, searchInput, searchResults;
+    let searchTimeout;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize elements
+        portionSelect = document.getElementById('portionSelect');
+        mealTypeSelect = document.getElementById('mealTypeSelect');
+        portionInput = document.getElementById('portionInput');
+        mealTypeInput = document.getElementById('mealTypeInput');
+
+        baseCalories = parseFloat(document.getElementById('baseCalories').value);
+        baseCarbs = parseFloat(document.getElementById('baseCarbs').value);
+        baseProtein = parseFloat(document.getElementById('baseProtein').value);
+        baseFat = parseFloat(document.getElementById('baseFat').value);
+
+        searchInput = document.getElementById('foodSearchInput');
+        searchResults = document.getElementById('searchResults');
+
+        // Initialize Modal
+        if (document.getElementById('foodSearchModal')) {
+            modal = new bootstrap.Modal(document.getElementById('foodSearchModal'));
+        }
+
+        // Event Listeners
+        if (portionSelect) {
+            portionSelect.addEventListener('change', function () {
+                const portion = parseFloat(this.value);
+                portionInput.value = portion;
+
+                // Update displayed values
+                document.getElementById('displayCalories').textContent = Math.round(baseCalories * portion);
+                document.getElementById('displayCarbs').textContent = (baseCarbs * portion).toFixed(1);
+                document.getElementById('displayProtein').textContent = (baseProtein * portion).toFixed(1);
+                document.getElementById('displayFat').textContent = (baseFat * portion).toFixed(1);
+            });
+        }
+
+        if (mealTypeSelect) {
+            mealTypeSelect.addEventListener('change', function () {
+                mealTypeInput.value = this.value;
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const query = this.value.trim();
+
+                clearTimeout(searchTimeout);
+
+                if (query.length < 2) {
+                    searchResults.innerHTML = `
+                        <div class="text-center text-muted py-3">
+                            <i class="fa-solid fa-magnifying-glass fa-2x mb-2"></i>
+                            <p class="small">Nhập tên món ăn để tìm kiếm</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                searchResults.innerHTML = `
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <p class="small text-muted mt-2">Đang tìm kiếm...</p>
+                    </div>
+                `;
+
+                searchTimeout = setTimeout(() => {
+                    fetch(`/camera/search_food?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.results && data.results.length > 0) {
+                                searchResults.innerHTML = data.results.map(food => `
+                                    <button class="list-group-item list-group-item-action border-0 rounded-3 mb-2 text-start" 
+                                            onclick="selectFood(${JSON.stringify(food).replace(/"/g, '&quot;')})">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>${food.name}</strong>
+                                                ${food.is_personal ? '<span class="badge bg-success ms-2 small">Của bạn</span>' : ''}
+                                                <br>
+                                                <small class="text-muted">1 ${food.unit} • ${food.calories} kcal</small>
+                                            </div>
+                                            <i class="fa-solid fa-chevron-right text-muted"></i>
+                                        </div>
+                                    </button>
+                                `).join('');
+                            } else {
+                                searchResults.innerHTML = `
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fa-solid fa-circle-question fa-2x mb-2"></i>
+                                        <p class="small">Không tìm thấy món ăn "${query}"</p>
+                                    </div>
+                                `;
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Search error:', err);
+                            searchResults.innerHTML = `
+                                <div class="text-center text-danger py-3">
+                                    <i class="fa-solid fa-exclamation-triangle fa-2x mb-2"></i>
+                                    <p class="small">Có lỗi xảy ra. Vui lòng thử lại.</p>
+                                </div>
+                            `;
+                        });
+                }, 300);
+            });
+        }
+    });
+
+    function openFoodSearch() {
+        if (modal) {
+            modal.show();
+            if (searchInput) setTimeout(() => searchInput.focus(), 300);
+        } else {
+            console.error("Modal not initialized");
+        }
+    }
+
+    function selectFood(food) {
+        // Update displayed food info
+        document.getElementById('foodName').textContent = food.name;
+        document.getElementById('foodUnit').textContent = '1 ' + food.unit;
+
+        // Update hidden form inputs
+        document.getElementById('baseCalories').value = food.calories;
+        document.getElementById('baseCarbs').value = food.carbs;
+        document.getElementById('baseProtein').value = food.protein;
+        document.getElementById('baseFat').value = food.fat;
+
+        // Update food_id and food_name
+        const foodIdInput = document.querySelector('input[name="food_id"]');
+        const foodNameInput = document.querySelector('input[name="food_name"]');
+
+        if (food.is_personal) {
+            if (foodIdInput) foodIdInput.remove(); // Remove public food_id
+            // Add personal_food_id if not exists
+            if (!document.querySelector('input[name="personal_food_id"]')) {
+                const personalIdInput = document.createElement('input');
+                personalIdInput.type = 'hidden';
+                personalIdInput.name = 'personal_food_id';
+                personalIdInput.value = food.id;
+                document.getElementById('addToDiaryForm').appendChild(personalIdInput);
+            } else {
+                document.querySelector('input[name="personal_food_id"]').value = food.id;
+            }
+        } else {
+            // Restore food_id input if missing
+            if (!foodIdInput) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'food_id';
+                input.value = food.id;
+                document.getElementById('addToDiaryForm').appendChild(input);
+            } else {
+                foodIdInput.value = food.id;
+            }
+
+            // Remove personal_food_id if exists
+            const personalInput = document.querySelector('input[name="personal_food_id"]');
+            if (personalInput) personalInput.remove();
+        }
+
+        foodNameInput.value = food.name;
+
+        // Reset portion to 1.0 and update displayed values
+        portionSelect.value = '1';
+        portionInput.value = '1.0';
+        document.getElementById('displayCalories').textContent = food.calories;
+        document.getElementById('displayCarbs').textContent = food.carbs.toFixed(1);
+        document.getElementById('displayProtein').textContent = food.protein.toFixed(1);
+        document.getElementById('displayFat').textContent = food.fat.toFixed(1);
+
+        // Close modal
+        if (modal) modal.hide();
+    }
+</script>
+
+{% elif not_found %}
+<!-- Food not found in database -->
+<div class="glass-card p-4 animate__animated animate__slideInUp">
+    <div class="text-center mb-4">
+        <i class="fa-solid fa-circle-question fa-3x text-warning mb-3"></i>
+        <h4 class="fw-bold">Không tìm thấy trong cơ sở dữ liệu</h4>
+        {% if predicted_food %}
+        <p class="text-muted">AI nhận diện: <strong>{{ predicted_food }}</strong></p>
+        {% endif %}
+        <p class="text-muted small">Món ăn này chưa có trong hệ thống. Bạn có thể nhập thủ công hoặc thử chụp lại.</p>
+    </div>
+
+    <div class="d-grid gap-2">
+        <a href="/home/manual_input" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm"
+            style="background-color: var(--primary-color); border: none;">
+            <i class="fa-solid fa-keyboard me-2"></i>Nhập thủ công
+        </a>
+        <a href="/home/dashboard" class="btn btn-light rounded-pill py-3 text-muted">Quét lại</a>
+    </div>
+</div>
+
+{% else %}
+<!-- Default state - no image uploaded yet -->
+<div class="glass-card p-4 animate__animated animate__slideInUp">
+    <div class="text-center mb-4">
+        <i class="fa-solid fa-camera fa-3x text-muted mb-3"></i>
+        <h4 class="fw-bold">Chụp hoặc tải ảnh món ăn</h4>
+        <p class="text-muted small">AI sẽ tự động nhận diện và hiển thị thông tin dinh dưỡng</p>
+    </div>
+
+    <div class="d-grid gap-2">
+        <a href="/home/dashboard" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm"
+            style="background-color: var(--primary-color); border: none;">
+            <i class="fa-solid fa-arrow-left me-2"></i>Quay lại Dashboard
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Tạo bữa ăn riêng{% endblock %}
+
+{% block content %}
+<div class="glass-card p-4 mb-4">
+    <h5 class="fw-bold mb-3">Tạo bữa ăn riêng</h5>
+    <form action="/home/meals/create" method="POST">
+        <div class="mb-3">
+            <label class="form-label">Tên món ăn</label>
+            <input type="text" class="form-control" name="name" required>
+        </div>
+        <div class="row mb-3">
+            <div class="col-6">
+                <label class="form-label">Calo (kcal)</label>
+                <input type="number" class="form-control" name="calories" required>
+            </div>
+            <div class="col-6">
+                <label class="form-label">Đơn vị tính</label>
+                <select class="form-select" name="unit">
+                    <option value="portion" selected>Phần</option>
+                    <option value="tô">Tô</option>
+                    <option value="chén">Chén</option>
+                    <option value="dĩa">Dĩa</option>
+                    <option value="miếng">Miếng</option>
+                    <option value="ly">Ly</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <label class="form-label">Carbs (g)</label>
+                <input type="number" class="form-control" name="carbs" step="0.1">
+            </div>
+            <div class="col-4">
+                <label class="form-label">Protein (g)</label>
+                <input type="number" class="form-control" name="protein" step="0.1">
+            </div>
+            <div class="col-4">
+                <label class="form-label">Fat (g)</label>
+                <input type="number" class="form-control" name="fat" step="0.1">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success mt-3">Tạo bữa ăn</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết bữa ăn{% endblock %}
+
+{% block content %}
+<!-- Meal Image Section -->
+<div class="mb-4 rounded-xxl overflow-hidden shadow-sm position-relative" style="height: 250px;">
+    {% if food_log.image_url %}
+    <img src="{{ food_log.image_url }}" class="w-100 h-100 object-fit-cover" alt="Meal Image">
+    {% else %}
+    <!-- Placeholder Example -->
+    <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80" class="w-100 h-100 object-fit-cover"
+        alt="Meal Placeholder">
+    <div class="position-absolute bottom-0 start-0 w-100 p-3 bg-gradient-to-t from-black-50">
+        <span class="badge bg-white text-dark shadow-sm">Ảnh minh họa</span>
+    </div>
+    {% endif %}
+
+    <div class="position-absolute top-0 start-0 p-3">
+        <a href="/home/diary" class="btn btn-dark bg-opacity-50 rounded-circle text-white shadow-sm"
+            style="width: 40px; height: 40px; display: grid; place-items: center;">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
+</div>
+
+<div class="glass-card p-4 mb-4">
+    <h5 class="fw-bold mb-3">
+        <i class="fa-solid fa-edit me-2 text-primary-custom"></i>Chỉnh sửa bữa ăn
+    </h5>
+    <form action="/home/meals/update" method="POST">
+        <input type="hidden" name="id" value="{{ food_log.id }}">
+        <div class="mb-3">
+            <label class="form-label">Tên món</label>
+            <input type="text" class="form-control rounded-pill" name="final_food_name"
+                value="{{ food_log.final_food_name }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Calo (kcal)</label>
+            <input type="number" class="form-control rounded-pill" name="calories" value="{{ food_log.calories }}"
+                required>
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-4">
+                <label class="form-label">Carbs (g)</label>
+                <input type="number" class="form-control rounded-pill" name="carbs" value="{{ food_log.carbs }}"
+                    step="0.1">
+            </div>
+            <div class="col-4">
+                <label class="form-label">Protein (g)</label>
+                <input type="number" class="form-control rounded-pill" name="protein" value="{{ food_log.protein }}"
+                    step="0.1">
+            </div>
+            <div class="col-4">
+                <label class="form-label">Fat (g)</label>
+                <input type="number" class="form-control rounded-pill" name="fat" value="{{ food_log.fat }}" step="0.1">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Bữa ăn</label>
+            <select class="form-select rounded-pill" name="meal_type">
+                <option value="Breakfast" {% if food_log.meal_type.value=='Breakfast' %}selected{% endif %}>Bữa sáng
+                </option>
+                <option value="Lunch" {% if food_log.meal_type.value=='Lunch' %}selected{% endif %}>Bữa trưa</option>
+                <option value="Dinner" {% if food_log.meal_type.value=='Dinner' %}selected{% endif %}>Bữa tối</option>
+                <option value="Snack" {% if food_log.meal_type.value=='Snack' %}selected{% endif %}>Ăn nhẹ</option>
+            </select>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success rounded-pill px-4 w-100">
+                <i class="fa-solid fa-save me-2"></i>Lưu thay đổi
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

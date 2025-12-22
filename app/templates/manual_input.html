@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Nhập tay - VietFood AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass-card p-4">
+                <h3 class="text-center mb-4">Thêm bữa ăn</h3>
+                <form action="/home/manual_input" method="POST" id="manualInputForm">
+                    <div class="mb-3">
+                        <label class="form-label">Chọn từ món ăn riêng (Optional)</label>
+                        <select name="personal_food_id" class="form-select" id="personalFoodSelect">
+                            <option value="">-- Chọn món ăn --</option>
+                            {% for p_food in personal_foods %}
+                            <option value="{{ p_food.id }}" data-name="{{ p_food.name }}"
+                                data-calories="{{ p_food.calories }}" data-protein="{{ p_food.protein }}"
+                                data-carbs="{{ p_food.carbs }}" data-fat="{{ p_food.fat }}">
+                                {{ p_food.name }} ({{ p_food.calories }} kcal)
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên món</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Calo (kcal)</label>
+                        <input type="number" step="0.1" name="calories" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="form-label">Protein (g)</label>
+                            <input type="number" step="0.1" name="protein" class="form-control" value="0">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Carbs (g)</label>
+                            <input type="number" step="0.1" name="carbs" class="form-control" value="0">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Fat (g)</label>
+                            <input type="number" step="0.1" name="fat" class="form-control" value="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bữa ăn</label>
+                        <select name="meal_type" class="form-control">
+                            <option value="Breakfast">Sáng</option>
+                            <option value="Lunch">Trưa</option>
+                            <option value="Dinner">Tối</option>
+                            <option value="Snack">Ăn vặt</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Khẩu phần</label>
+                        <select name="portion" class="form-control">
+                            <option value="small">Nhỏ</option>
+                            <option value="medium">Trung bình</option>
+                            <option value="large">Lớn</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                </form>
+                <a href="/home/dashboard" class="btn btn-secondary w-100 mt-2">Quay lại</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    const select = document.getElementById('personalFoodSelect');
+    const nameInput = document.querySelector('input[name="name"]');
+    const calInput = document.querySelector('input[name="calories"]');
+    const protInput = document.querySelector('input[name="protein"]');
+    const carbInput = document.querySelector('input[name="carbs"]');
+    const fatInput = document.querySelector('input[name="fat"]');
+
+    if (select) {
+        select.addEventListener('change', function () {
+            const option = this.options[this.selectedIndex];
+            if (option.value) {
+                nameInput.value = option.dataset.name;
+                calInput.value = option.dataset.calories;
+                protInput.value = option.dataset.protein;
+                carbInput.value = option.dataset.carbs;
+                fatInput.value = option.dataset.fat;
+            } else {
+                nameInput.value = "";
+                calInput.value = "";
+                protInput.value = "0";
+                carbInput.value = "0";
+                fatInput.value = "0";
+            }
+        });
+    }
+</script>
+{% endblock %}

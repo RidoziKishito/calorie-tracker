@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Chỉnh sửa món ăn{% endblock %}
+
+{% block content %}
+<div class="glass-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Chỉnh sửa món ăn</h5>
+        <a href="/home/meals" class="btn btn-sm btn-light rounded-circle shadow-sm"><i
+                class="fa-solid fa-xmark"></i></a>
+    </div>
+
+    <form action="/home/meals/personal/update" method="POST">
+        <input type="hidden" name="id" value="{{ food.id }}">
+
+        <div class="mb-3">
+            <label class="form-label">Tên món ăn</label>
+            <input type="text" class="form-control" name="name" value="{{ food.name }}" required>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-6">
+                <label class="form-label">Calo (kcal)</label>
+                <input type="number" class="form-control" name="calories" value="{{ food.calories }}" required>
+            </div>
+            <div class="col-6">
+                <label class="form-label">Đơn vị tính</label>
+                <select class="form-select" name="unit">
+                    <option value="portion" {% if food.unit=='portion' %}selected{% endif %}>Phần</option>
+                    <option value="tô" {% if food.unit=='tô' %}selected{% endif %}>Tô</option>
+                    <option value="chén" {% if food.unit=='chén' %}selected{% endif %}>Chén</option>
+                    <option value="dĩa" {% if food.unit=='dĩa' %}selected{% endif %}>Dĩa</option>
+                    <option value="miếng" {% if food.unit=='miếng' %}selected{% endif %}>Miếng</option>
+                    <option value="ly" {% if food.unit=='ly' %}selected{% endif %}>Ly</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4">
+                <label class="form-label">Carbs (g)</label>
+                <input type="number" class="form-control" name="carbs" value="{{ food.carbs }}" step="0.1">
+            </div>
+            <div class="col-4">
+                <label class="form-label">Protein (g)</label>
+                <input type="number" class="form-control" name="protein" value="{{ food.protein }}" step="0.1">
+            </div>
+            <div class="col-4">
+                <label class="form-label">Fat (g)</label>
+                <input type="number" class="form-control" name="fat" value="{{ food.fat }}" step="0.1">
+            </div>
+        </div>
+
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary rounded-pill py-2">Lưu thay đổi</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

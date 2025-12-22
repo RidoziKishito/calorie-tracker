@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}VietFood AI{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    {% block head_css %}{% endblock %}
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <main class="flex-grow-1 {% block main_class %}container py-3{% endblock %}">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% block bottom_nav %}
+    {% if not hide_nav %}
+    <nav class="bottom-nav">
+        <!-- ... content ... -->
+        <a href="/home/dashboard" class="nav-item {% if '/dashboard' in request.url.path %}active{% endif %}">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+
+        <a href="/home/diary" class="nav-item {% if '/diary' in request.url.path %}active{% endif %}">
+            <i class="fa-solid fa-book-open"></i>
+            <span>Diary</span>
+        </a>
+
+        <div class="fab-container">
+            <a href="/camera/scan" class="fab-btn">
+                <i class="fa-solid fa-camera"></i>
+            </a>
+        </div>
+
+        <a href="/home/meals" class="nav-item {% if '/meals' in request.url.path %}active{% endif %}">
+            <i class="fa-solid fa-utensils"></i>
+            <span>Meals</span>
+        </a>
+
+        <a href="/home/profile" class="nav-item {% if '/profile' in request.url.path %}active{% endif %}">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+    {% endif %}
+    {% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+
+</html>

@@ -1,62 +1,61 @@
-# Dependencies
-node_modules
-package-lock.json
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 
-# Build output
-build
-dist
-*.local
-
-# Environment files
+# Virtual Environment
 .env
-.env.local
-.env.production.local
-.env.development.local
+.venv
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
 
-# Backend Python
-backend/venv
-backend/__pycache__
-backend/**/__pycache__
-backend/*.pyc
-backend/**/*.pyc
-backend/.pytest_cache
-backend/**/.pytest_cache
-
-# Database
-backend/*.db
-backend/*.sqlite
-backend/*.sqlite3
-backend/calorie_tracker.db
-
-# Uploaded files
-backend/temp_uploads
-backend/uploads
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
 
 # OS
+.DS_Store
 Thumbs.db
+desktop.ini
+.Spotlight-V100
+.Trashes
 
-# Test files (nếu không cần)
-*.zip
-test.zip
+# Project specific
+*.db
+*.sqlite3
+logs/
+__MACOSX/
 
-# Python virtual environment (project root)
-.venv/
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Unit test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json

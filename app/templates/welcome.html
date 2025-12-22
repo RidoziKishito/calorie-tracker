@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% set hide_nav = True %}
+
+{% block title %}Chào mừng - VietFood AI{% endblock %}
+
+{% block head_css %}
+<link rel="stylesheet" href="/static/css/welcome.css">
+{% endblock %}
+
+{% block main_class %}p-0{% endblock %}
+
+{% block content %}
+<div class="welcome-wrapper position-relative w-100 min-vh-100 d-flex flex-column overflow-hidden">
+    
+    <div class="welcome-bg-image"></div>
+    <div class="welcome-overlay"></div>
+
+    <div class="z-2 flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center px-4 pb-5">
+        <div class="logo-container mb-4">
+            <div class="logo-ring"></div>
+            <div class="logo-icon">
+                <i class="fa-solid fa-bowl-rice"></i>
+            </div>
+        </div>
+
+        <h1 class="display-4 fw-bolder text-white mb-2 tracking-tight">
+            VietFood <span class="text-primary-gradient">AI</span>
+        </h1>
+        <p class="text-white-50 fs-5 fw-light" style="max-width: 300px;">
+            Thấu hiểu từng calories trong món ăn Việt của bạn.
+        </p>
+    </div>
+
+    <div class="z-3 w-100 pb-4 px-3 animate-slide-up">
+        <div class="glass-bottom-sheet p-4">
+            <h5 class="fw-bold text-dark mb-4 text-center">Bắt đầu hành trình sống khỏe</h5>
+
+            <div class="d-grid gap-3">
+                <a href="/account/login" class="btn btn-welcome-primary btn-lg rounded-pill py-3 fw-bold shadow-lg d-flex align-items-center justify-content-center text-decoration-none">
+                    <span>Bắt đầu ngay</span>
+                </a>
+
+                <a href="/account/register" class="btn btn-welcome-secondary btn-lg rounded-pill py-3 fw-bold text-decoration-none text-center">
+                    Đăng ký
+                </a>
+            </div>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
