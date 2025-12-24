@@ -55,6 +55,7 @@
                         </a>
                         <form action="/admin/foods/delete/{{ f.id }}" method="POST" class="d-inline"
                             onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle border-0">
                                 <i class="fa-solid fa-trash"></i>
                             </button>

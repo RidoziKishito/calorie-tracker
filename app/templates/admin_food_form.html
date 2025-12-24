@@ -8,6 +8,7 @@
 
 <div class="card border-0 shadow-sm rounded-xl p-4">
     <form action="{{ '/admin/foods/update' if food else '/admin/foods/create' }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         {% if food %}
         <input type="hidden" name="id" value="{{ food.id }}">
         {% endif %}

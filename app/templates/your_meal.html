@@ -144,6 +144,13 @@
     let modal, searchInput, searchResults;
     let searchTimeout;
 
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         // Initialize elements
         portionSelect = document.getElementById('portionSelect');
@@ -217,10 +224,10 @@
                                             onclick="selectFood(${JSON.stringify(food).replace(/"/g, '&quot;')})">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <strong>${food.name}</strong>
+                                                <strong>${escapeHtml(food.name)}</strong>
                                                 ${food.is_personal ? '<span class="badge bg-success ms-2 small">Của bạn</span>' : ''}
                                                 <br>
-                                                <small class="text-muted">1 ${food.unit} • ${food.calories} kcal</small>
+                                                <small class="text-muted">1 ${escapeHtml(food.unit)} • ${food.calories} kcal</small>
                                             </div>
                                             <i class="fa-solid fa-chevron-right text-muted"></i>
                                         </div>
@@ -230,7 +237,7 @@
                                 searchResults.innerHTML = `
                                     <div class="text-center text-muted py-3">
                                         <i class="fa-solid fa-circle-question fa-2x mb-2"></i>
-                                        <p class="small">Không tìm thấy món ăn "${query}"</p>
+                                        <p class="small">Không tìm thấy món ăn "${escapeHtml(query)}"</p>
                                     </div>
                                 `;
                             }

