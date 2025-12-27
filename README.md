@@ -487,19 +487,20 @@ This project is open source and available under the **MIT License**. See LICENSE
 
 ## 🤝 Contact & Support
 
-For questions, issues, or suggestions:
+If you encounter any issues or have questions about this project, feel free to reach out:
 
-- 📧 **Email:** your-email@example.com
-- 💬 **GitHub Issues:** https://github.com/your-username/calorie-tracker/issues
-- 🌐 **Live Demo:** https://mahoodd-nutri-tracker.hf.space/
+- 📧 Email: huytranquoc24@gmail.com
+- 🌐 Facebook: https://www.facebook.com/huy.tranquoc.129357/
+- 💼 LinkedIn: https://www.linkedin.com/in/tran-quoc-huy-0612-ai/
 
 ---
 
 ## 👨‍💻 Project Team
 
-Built with ❤️ by:
+💡 Created with ❤️ by:
 
-- **Mahoodd** - Full Stack Developer
+- **Tran Quoc Huy** - 23110026
+- **Le Huu Truc** - 23110068
 
 ---
 
@@ -507,15 +508,7 @@ Built with ❤️ by:
 
 ### Dashboard
 
-![Dashboard](https://img.placeholder.com/800x600?text=Dashboard)
-
-### Food Recognition
-
-![Food Recognition](https://img.placeholder.com/800x600?text=Food+Recognition)
-
-### Meal Diary
-
-![Meal Diary](https://img.placeholder.com/800x600?text=Meal+Diary)
+<img width="1229" height="822" alt="image" src="https://github.com/user-attachments/assets/d8ba6d03-7696-4ba7-aaa2-39b96e44a357" />
 
 ---
 
